@@ -859,6 +859,8 @@ function fmtSpan(d){
   return (d/1e9).toFixed(1)+' billion ly';
 }
 function visible(o){return on.has(o.c)&&(!query||o.n.toLowerCase().includes(query)||o.sub.toLowerCase().includes(query));}
+// the sky ignores the search box; only the category chips hide things, and whatever you are looking at always shows
+function inSky(o){return on.has(o.c)||o===sel||o===focus||(sel&&sel.parent===o)||(focus&&focus.parent===o);}
 function renderList(){
   listEl.textContent='';let any=false;
   const off=CAT_ORDER.filter(c=>!on.has(c));
@@ -1217,7 +1219,7 @@ function draw(){
   boxes=[];screenObjs=[];
   const items=[],systems=[],nebs=[],M=Math.max(W,H)*4;
   for(const o of O){
-    if(!visible(o))continue;if(o.st&&o.st.stg==='unborn'&&o!==sel)continue;const p=proj(o.pos[0],o.pos[1],o.pos[2]);if(!p)continue;
+    if(!inSky(o))continue;if(o.st&&o.st.stg==='unborn'&&o!==sel)continue;const p=proj(o.pos[0],o.pos[1],o.pos[2]);if(!p)continue;
     if(o.st&&o.st.neb)nebs.push(o);
     if((o===ANDR||o===M33)&&mergeA(simT)>.97)continue;
     const z=p[2];let r;const c=ek(o);
@@ -1868,7 +1870,7 @@ const SHADE={Mercury:[1,'#a8a39b','#55514c',[0,0,0]],Venus:[4,'#e8d3a0','#b89a60
 function hex3(h){const c=hexRgb(h);return [c[0]/255,c[1]/255,c[2]/255];}
 function glSetup(f,z){
   // returns [mode,unit] if the close-up shader should draw this object
-  if(!f||!gl||!visible(f.isPlanet?f.parent:f))return null;
+  if(!f||!gl||!inSky(f.isPlanet?f.parent:f))return null;
   if(f.isPlanet)return !f.gone&&F*f.R/z>12?[2,f.R]:null;
   if(f.st&&f.st.stg==='unborn')return null;
   if(ek(f)==='bh')return F*f.R/z>6?[3,f.Rs]:null;
